@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda Eletrônica Aprimorada</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.9/flatpickr.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #e9ecef;
+            color: #495057;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            text-align: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        h1 {
+            font-size: 26px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ced4da;
+            border-radius: 10px;
+            transition: border 0.3s;
+            font-size: 16px;
+        }
+
+        input[type="text"]:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .appointment-list {
+            margin-top: 20px;
+            list-style: none;
+            padding: 0;
+            text-align: left;
+        }
+
+        .appointment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
+        }
+
+        .delete-btn,
+        .edit-btn {
+            background-color: #28a745;
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .delete-btn:hover {
+            background-color: #dc3545;
+            transform: translateY(-2px);
+        }
+
+        .edit-btn:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        /* Estilos para o modo escuro */
+        body.dark-mode {
+            background-color: #343a40;
+            color: #f8f9fa;
+        }
+
+        .container.dark-mode {
+            background-color: #495057;
+        }
+
+        .appointment-item.dark-mode {
+            background-color: #6c757d;
+        }
+
+        input[type="text"].dark-mode {
+            background-color: #343a40;
+            color: #f8f9fa;
+            border: 1px solid #7f8c8d;
+        }
+
+        button.dark-mode {
+            background-color: #1abc9c;
+        }
+
+        button.dark-mode:hover {
+            background-color: #16a085;
+        }
+
+        .toggle-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .toggle-button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .filter-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .filter-container select {
+            width: 48%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        .filter-container select:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" id="container">
+        <h1>Minha Agenda</h1>
+        <input type="text" id="appointment" placeholder="Descrição do Compromisso" />
+        <input type="text" id="date" placeholder="Data do Compromisso" />
+        <input type="text" id="time" placeholder="Hora do Compromisso" />
+        <select id="repeat">
+            <option value="none">Não Repetir</option>
+            <option value="daily">Diariamente</option>
+            <option value="weekly">Semanalmente</option>
+            <option value="monthly">Mensalmente</option>
+        </select>
+        <button onclick="addOrUpdateAppointment()">Adicionar Compromisso</button>
+        <ul class="appointment-list" id="appointmentList"></ul>
+        <div class="filter-container">
+            <select id="filter" onchange="filterAppointments()">
+                <option value="all">Todos</option>
+                <option value="today">Hoje</option>
+                <option value="upcoming">Futuros</option>
+            </select>
+        </div>
+        <button class="toggle-button" onclick="toggleDarkMode()">Alternar Modo Escuro</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.9/flatpickr.min.js"></script>
+    <script>
+        let editingIndex = null;
+
+        // Inicializa o flatpickr
+        flatpickr("#date", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+        });
+
+        // Carrega compromissos do armazenamento local ao iniciar
+        window.onload = function() {
+            loadAppointments();
+        };
+
+        function addOrUpdateAppointment() {
+            const appointmentInput = document.getElementById('appointment');
+            const dateInput = document.getElementById('date');
+            const repeatInput = document.getElementById('repeat');
+            const appointments = JSON.parse(localStorage.getItem('appointments')) || [];
+            const appointment = {
+                description: appointmentInput.value,
+                date: dateInput.value,
+                repeat: repeatInput.value
+            };
+
+            if (editingIndex !== null) {
+                appointments[editingIndex] = appointment; // Atualiza compromisso existente
+                editingIndex = null; // Reseta o índice de edição
+            } else {
+                appointments.push(appointment); // Adiciona novo compromisso
+            }
+
+            localStorage.setItem('appointments', JSON.stringify(appointments));
+            loadAppointments();
+            appointmentInput.value = '';
+            dateInput.value = '';
+            repeatInput.value = 'none';
+        }
+
+        function loadAppointments() {
+            const appointmentList = document.getElementById('appointmentList');
+            appointmentList.innerHTML = ''; // Limpa a lista
+
+            const appointments = JSON.parse(localStorage.getItem('appointments')) || [];
+
+            appointments.forEach((appointment, index) => {
+                const li = document.createElement('li');
+                li.className = 'appointment-item';
+                li.innerHTML = `
+                    <span>${appointment.description} - ${new Date(appointment.date).toLocaleString()}</span>
+                    <button class="edit-btn" onclick="editAppointment(${index})">Editar</button>
+                    <button class="delete-btn" onclick="deleteAppointment(${index})">Remover</button>
+                `;
+                appointmentList.appendChild(li);
+            });
+        }
+
+        function filterAppointments() {
+            const filterValue = document.getElementById('filter').value;
+            const appointmentList = document.getElementById('appointmentList');
+            const appointments = JSON.parse(localStorage.getItem('appointments')) || [];
+            appointmentList.innerHTML = ''; // Limpa a lista
+
+            const now = new Date();
+
+            appointments.forEach((appointment, index) => {
+                const appointmentDate = new Date(appointment.date);
+                let shouldDisplay = false;
+
+                switch (filterValue) {
+                    case 'all':
+                        shouldDisplay = true;
+                        break;
+                    case 'today':
+                        if (appointmentDate.toDateString() === now.toDateString()) {
+                            shouldDisplay = true;
+                        }
+                        break;
+                    case 'upcoming':
+                        if (appointmentDate > now) {
+                            shouldDisplay = true;
+                        }
+                        break;
+                }
+
+                if (shouldDisplay) {
+                    const li = document.createElement('li');
+                    li.className = 'appointment-item';
+                    li.innerHTML = `
+                        <span>${appointment.description} - ${appointmentDate.toLocaleString()}</span>
+                        <button class="edit-btn" onclick="editAppointment(${index})">Editar</button>
+                        <button class="delete-btn" onclick="deleteAppointment(${index})">Remover</button>
+                    `;
+                    appointmentList.appendChild(li);
+                }
+            });
+        }
+
+        function deleteAppointment(index) {
+            const appointments = JSON.parse(localStorage.getItem('appointments')) || [];
+            appointments.splice(index, 1); // Remove o compromisso desejado
+            localStorage.setItem('appointments', JSON.stringify(appointments));
+            loadAppointments();
+        }
+
+        function editAppointment(index) {
+            const appointments = JSON.parse(localStorage.getItem('appointments')) || [];
+            document.getElementById('appointment').value = appointments[index].description;
+            document.getElementById('date').value = appointments[index].date;
+            document.getElementById('repeat').value = appointments[index].repeat;
+            editingIndex = index; // Define o índice de edição
+        }
+
+        // Função para alternar entre modo claro e escuro
+        function toggleDarkMode() {
+            const body = document.body;
+            const container = document.getElementById('container');
+            const inputs = document.querySelectorAll('input[type="text"]');
+            const buttons = document.querySelectorAll('button');
+
+            body.classList.toggle('dark-mode');
+            container.classList.toggle('dark-mode');
+            inputs.forEach(input => input.classList.toggle('dark-mode'));
+            buttons.forEach(button => button.classList.toggle('dark-mode'));
+        }
+    </script>
+</body>
+
+</html>
